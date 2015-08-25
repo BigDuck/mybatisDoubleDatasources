@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2015 / 8 / 16 1 :51 :3
+  ~ BY:wupeiji
+  ~ QQ:757671834
+  ~
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
+    <bean id="dataSourceOne" class="com.alibaba.druid.pool.DruidDataSource"
+          init-method="init" destroy-method="close">
+        <property name="driverClassName" value="${master.jdbc.driverClass}"/>
+        <property name="url" value="${master.jdbc.url}"/>
+        <property name="username" value="${master.jdbc.user}"/>
+        <property name="password" value="${master.jdbc.password}"/>
+        <property name="filters" value="stat"/>
+        <property name="maxActive" value="20"/>
+        <property name="initialSize" value="1"/>
+        <property name="maxWait" value="60000"/>
+        <property name="minIdle" value="1"/>
+        <property name="timeBetweenEvictionRunsMillis" value="60000"/>
+        <property name="minEvictableIdleTimeMillis" value="300000"/>
+        <property name="validationQuery" value="SELECT 'x'"/>
+        <property name="testWhileIdle" value="true"/>
+        <property name="testOnBorrow" value="false"/>
+        <property name="testOnReturn" value="false"/>
+    </bean>
+    <bean id="sqlSessionFactoryOne" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSourceOne"/>
+        <property name="mapperLocations">
+            <array>
+                <value>
+                    classpath:mapperone/*Mapper.xml
+                </value>
+            </array>
+        </property>
+        <!--加入分页插件 -->
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageHelper">
+                    <property name="properties">
+                        <value>
+                            dialect=mysql
+                            reasonable=true
+                        </value>
+                    </property>
+                </bean>
+                <bean class="tk.mybatis.mapper.mapperhelper.MapperOnceInterceptor">
+                    <property name="properties">
+                        <value>
+                            mappers=tk.mybatis.mapper.common.Mapper
+                            IDENTITY=MYSQL
+                            notEmpty=true
+                        </value>
+                    </property>
+                </bean>
+            </array>
+        </property>
+    </bean>
+    <bean id="mapperScannerConfigurerOne" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage"
+                  value="w.p.j.dao.one"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryOne"/>
+    </bean>
+    <aop:config>
+        <aop:pointcut id="appService"
+                      expression="execution(* w.p.j.service..*Service*.*(..))"/>
+        <aop:advisor advice-ref="txAdviceOne" pointcut-ref="appService"/>
+    </aop:config>
+    <tx:advice id="txAdviceOne" transaction-manager="transactionManagerOne">
+        <tx:attributes>
+            <tx:method name="select*" read-only="true"/>
+            <tx:method name="find*" read-only="true"/>
+            <tx:method name="get*" read-only="true"/>
+            <tx:method name="*"/>
+        </tx:attributes>
+    </tx:advice>
+    <bean id="transactionManagerOne"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSourceOne"/>
+    </bean>
+</beans>

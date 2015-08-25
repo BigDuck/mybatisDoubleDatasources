@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="w.p.j.dao.two.NewsMapper" >
+  <resultMap id="BaseResultMap" type="w.p.j.daomain.two.News" >
+    <!--
+      WARNING - @mbggenerated
+    -->
+    <id column="news_id" property="newsId" jdbcType="INTEGER" />
+    <result column="news_title" property="newsTitle" jdbcType="VARCHAR" />
+    <result column="news_con" property="newsCon" jdbcType="VARCHAR" />
+  </resultMap>
+</mapper>

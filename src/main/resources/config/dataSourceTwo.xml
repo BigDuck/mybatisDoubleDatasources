@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2015 / 8 / 16 8 :45 :38
+  ~ BY:wupeiji
+  ~ QQ:757671834
+  ~
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
+    <bean id="dataSourceTwo" class="com.alibaba.druid.pool.DruidDataSource"
+          init-method="init" destroy-method="close"
+            >
+        <property name="driverClassName" value="${slave.jdbc.driverClass}"/>
+        <property name="username" value="${slave.jdbc.user}"/>
+        <property name="password" value="${slave.jdbc.password}"/>
+        <property name="url" value="${slave.jdbc.url}"/>
+        <property name="filters" value="stat"/>
+
+        <property name="maxActive" value="20"/>
+        <property name="initialSize" value="1"/>
+        <property name="maxWait" value="60000"/>
+        <property name="minIdle" value="1"/>
+
+        <property name="timeBetweenEvictionRunsMillis" value="60000"/>
+        <property name="minEvictableIdleTimeMillis" value="300000"/>
+
+        <property name="validationQuery" value="SELECT 'x'"/>
+        <property name="testWhileIdle" value="true"/>
+        <property name="testOnBorrow" value="false"/>
+        <property name="testOnReturn" value="false"/>
+
+    </bean>
+    <bean id="sqlSessionFactoryTwo"
+          class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSourceTwo"/>
+
+            <!--加入分页插件 -->
+            <property name="plugins">
+                <array>
+                    <bean class="com.github.pagehelper.PageHelper">
+                        <property name="properties">
+                            <value>
+                                dialect=mysql
+                                reasonable=true
+                            </value>
+                        </property>
+                    </bean>
+                    <bean class="tk.mybatis.mapper.mapperhelper.MapperOnceInterceptor">
+                        <property name="properties">
+                            <value>
+                                mappers=tk.mybatis.mapper.common.Mapper
+                                IDENTITY=MYSQL
+                                notEmpty=true
+                            </value>
+                        </property>
+                    </bean>
+                </array>
+            </property>
+
+        <property name="mapperLocations">
+            <array>
+                <value>classpath:mappertwo/*.xml</value>
+            </array>
+        </property>
+    </bean>
+    <bean id="mapperScannerConfigurerTwo" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="w.p.j.dao.two"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryTwo"/>
+    </bean>
+    <bean id="sqlSessionSlave" class="org.mybatis.spring.SqlSessionTemplate" scope="prototype">
+        <constructor-arg index="0" ref="sqlSessionFactoryTwo"/>
+    </bean>
+    <aop:config>
+        <aop:pointcut id="appService"
+                      expression="execution(* w.p.j.service..*Service*.*(..))"/>
+        <aop:advisor advice-ref="txAdviceTwo" pointcut-ref="appService"/>
+    </aop:config>
+
+    <!--
+    <tx:method name="*" read-only="true"/>是只读的。如果不是从库，可以按主库进行配置。
+    -->
+    <tx:advice id="txAdviceTwo" transaction-manager="transactionManagerTwo">
+        <tx:attributes>
+            <tx:method name="*" read-only="true"/>
+        </tx:attributes>
+    </tx:advice>
+    <bean id="transactionManagerTwo"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSourceTwo"/>
+
+    </bean>
+</beans>

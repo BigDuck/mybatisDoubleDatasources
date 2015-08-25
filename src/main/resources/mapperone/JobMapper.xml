@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="w.p.j.dao.one.JobMapper" >
+  <resultMap id="BaseResultMap" type="w.p.j.daomain.one.Job" >
+    <!--
+      WARNING - @mbggenerated
+    -->
+    <id column="job_id" property="jobId" jdbcType="INTEGER" />
+    <result column="job_name" property="jobName" jdbcType="VARCHAR" />
+    <result column="job_salary" property="jobSalary" jdbcType="DECIMAL" />
+    <result column="job_address" property="jobAddress" jdbcType="VARCHAR" />
+  </resultMap>
+</mapper>
