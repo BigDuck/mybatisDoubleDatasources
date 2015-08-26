@@ -54,7 +54,7 @@
                         </value>
                     </property>
                 </bean>
-                <bean class="tk.mybatis.mapper.mapperhelper.MapperOnceInterceptor">
+                <bean class="tk.mybatis.mapper.mapperhelper.MapperInterceptor">
                     <property name="properties">
                         <value>
                             mappers=tk.mybatis.mapper.common.Mapper

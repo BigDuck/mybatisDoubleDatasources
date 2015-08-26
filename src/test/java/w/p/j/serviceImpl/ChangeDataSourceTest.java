@@ -47,7 +47,8 @@ public class ChangeDataSourceTest  extends TestFather{
         List<News> list=newsMapper.selectByExample(e);
                 //newsMapper.select(null);
         list.forEach(o->{
-            System.out.println("动漫："+o.toString());
+            System.out.println(
+                    "动漫："+o.toString());
         });
     }
 
